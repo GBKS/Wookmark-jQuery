@@ -3,19 +3,27 @@
   @name jquery.wookmark.js
   @author Christoph Ono (chri@sto.ph or @gbks)
   @version 0.5
-  @date 3/19/2012
+  @date 04/08/2012
   @category jQuery plugin
   @copyright (c) 2009-2012 Christoph Ono (www.wookmark.com)
   @license Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
 */
 $.fn.wookmark = function(options) {
-  
+
+  var widthSetter = $(this[0]);
+  var getItemWidth = function(fixedWidth) {
+    if(fixedWidth===undefined) {
+      return widthSetter.outerWidth();
+    } else {
+      return fixedWidth;
+    }
+  }
+
   if(!this.wookmarkOptions) {
     this.wookmarkOptions = $.extend( {
         container: $('body'),
         offset: 2,
         autoResize: false,
-        itemWidth: $(this[0]).outerWidth(),
         resizeDelay: 50
       }, options);
   } else if(options) {
@@ -30,8 +38,12 @@ $.fn.wookmark = function(options) {
   
   // Main layout function.
   this.wookmarkLayout = function() {
+    if(!this.wookmarkOptions.container.is(":visible")){
+      return;
+    }
+
     // Calculate basic layout parameters.
-    var columnWidth = this.wookmarkOptions.itemWidth + this.wookmarkOptions.offset;
+    var columnWidth = getItemWidth(this.wookmarkOptions.itemWidth) + this.wookmarkOptions.offset;
     var containerWidth = this.wookmarkOptions.container.width();
     var columns = Math.floor((containerWidth+this.wookmarkOptions.offset)/columnWidth);
     var offset = Math.round((containerWidth - (columns*columnWidth-this.wookmarkOptions.offset))/2);
@@ -146,6 +158,7 @@ $.fn.wookmark = function(options) {
       this.wookmarkResizeMethod = $.proxy(this.wookmarkOnResize, this);
     }
     $(window).resize(this.wookmarkResizeMethod);
+    this.wookmarkOptions.container.bind('refreshWookmark',this.wookmarkResizeMethod);
   };
   
   /**
@@ -158,7 +171,8 @@ $.fn.wookmark = function(options) {
     }
     if(this.wookmarkResizeMethod) {
       $(window).unbind('resize', this.wookmarkResizeMethod);
-    }
+      this.wookmarkOptions.container.unbind('refreshWookmark',this.wookmarkResizeMethod);
+   }
   };
   
   // Apply layout
