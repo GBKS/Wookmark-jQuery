@@ -16,7 +16,8 @@ $.fn.wookmark = function(options) {
         offset: 2,
         autoResize: false,
         itemWidth: $(this[0]).outerWidth(),
-        resizeDelay: 50
+        resizeDelay: 50,
+        topOffset: 0
       }, options);
   } else if(options) {
     this.wookmarkOptions = $.extend(this.wookmarkOptions, options);
@@ -35,7 +36,7 @@ $.fn.wookmark = function(options) {
     var containerWidth = this.wookmarkOptions.container.width();
     var columns = Math.floor((containerWidth+this.wookmarkOptions.offset)/columnWidth);
     var offset = Math.round((containerWidth - (columns*columnWidth-this.wookmarkOptions.offset))/2);
-    
+
     // If container and column count hasn't changed, we can only update the columns.
     var bottom = 0;
     if(this.wookmarkColumns != null && this.wookmarkColumns.length == columns) {
@@ -80,9 +81,10 @@ $.fn.wookmark = function(options) {
       }
       
       // Postion the item.
+      var toppos = this.wookmarkOptions.topOffset + shortest;
       item.css({
         position: 'absolute',
-        top: shortest+'px',
+        top: toppos+'px',
         left: (shortestIndex*columnWidth + offset)+'px'
       });
       
@@ -114,9 +116,10 @@ $.fn.wookmark = function(options) {
       kLength = column.length;
       for(k=0; k<kLength; k++) {
         item = column[k];
+        var toppos = this.wookmarkOptions.topOffset + heights[i];
         item.css({
           left: (i*columnWidth + offset)+'px',
-          top: heights[i]+'px'
+          top: toppos+'px'
         });
         heights[i] += item.outerHeight() + this.wookmarkOptions.offset;
         
