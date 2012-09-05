@@ -14,6 +14,7 @@ $.fn.wookmark = function(options) {
     this.wookmarkOptions = $.extend( {
         container: $('body'),
         offset: 2,
+        isFill: false,
         autoResize: false,
         itemWidth: $(this[0]).outerWidth(),
         resizeDelay: 50
@@ -68,7 +69,7 @@ $.fn.wookmark = function(options) {
     var item, top, left, i=0, k=0, length=this.length, shortest=null, shortestIndex=null, bottom = 0;
     for(; i<length; i++ ) {
       item = $(this[i]);
-      
+
       // Find the shortest column.
       shortest = null;
       shortestIndex = 0;
@@ -85,17 +86,21 @@ $.fn.wookmark = function(options) {
         top: shortest+'px',
         left: (shortestIndex*columnWidth + offset)+'px'
       });
-      
+
       // Update column height.
       heights[shortestIndex] = shortest + item.outerHeight() + this.wookmarkOptions.offset;
       bottom = Math.max(bottom, heights[shortestIndex]);
       
       this.wookmarkColumns[shortestIndex].push(item);
     }
+
+    if(this.wookmarkOptions.isFill) {
+      this.wookmarkLayoutFill(columnWidth, columns, offset, heights, bottom);
+    }
     
     return bottom;
   };
-  
+
   /**
    * This layout function only updates the vertical position of the 
    * existing column assignments.
@@ -123,10 +128,37 @@ $.fn.wookmark = function(options) {
         bottom = Math.max(bottom, heights[i]);
       }
     }
+
+    if(this.wookmarkOptions.isFill) {
+      this.wookmarkLayoutFill(columnWidth, columns, offset, heights, bottom);
+    }
     
     return bottom;
   };
-  
+
+  /*
+  * Added by Hiro
+  * */
+  this.wookmarkLayoutFill = function(columnWidth, columns, offset, heights, bottom) {
+    for(var k=0; k<columns; k++) {
+      if(heights[k] != bottom) {
+        var tag = this[0].tagName,
+           h = $(this[0] ).outerHeight() - $(this[0] ).height();
+           item = $('<'+ tag +'/>');
+        item.css({
+          display: 'list-item',
+          cursor: 'auto',
+          position: 'absolute',
+          height: (bottom - heights[k] - this.wookmarkOptions.offset - h)+'px',
+          top: heights[k] +'px',
+          left: (k*columnWidth + offset) +'px'
+        });
+
+        $(this[0] ).parent().append(item);
+      }
+    }
+  };
+
   // Listen to resize event if requested.
   this.wookmarkResizeTimer = null;
   if(!this.wookmarkResizeMethod) {
