@@ -64,11 +64,15 @@ $.fn.wookmark = function(options) {
       this.wookmarkColumns.push([]);
     }
     
-    // Loop over items.
-    var item, top, left, i=0, k=0, length=this.length, shortest=null, shortestIndex=null, bottom = 0;
-    for(; i<length; i++ ) {
-      item = $(this[i]);
-      
+    var itemsToProcess = []
+    for(i = 0 ; i<this.length; i++ ) {
+      itemsToProcess.push($(this[i]));
+    }
+
+    var shortest=null, shortestIndex=null, bottom = 0;
+    while (itemsToProcess.length != 0) {
+      var item = itemsToProcess.shift()
+
       // Find the shortest column.
       shortest = null;
       shortestIndex = 0;
@@ -78,7 +82,12 @@ $.fn.wookmark = function(options) {
           shortestIndex = k;
         }
       }
-      
+      if((shortestIndex != 0) &&(item.hasClass('left'))){
+        var nextItem = itemsToProcess.shift();
+        itemsToProcess.unshift(item);
+        item = nextItem;
+      }
+
       // Postion the item.
       item.css({
         position: 'absolute',
@@ -92,6 +101,35 @@ $.fn.wookmark = function(options) {
       
       this.wookmarkColumns[shortestIndex].push(item);
     }
+
+    // // Loop over items.
+    // var item, top, left, i=0, k=0, length=this.length, shortest=null, shortestIndex=null, bottom = 0;
+    // for(; i<length; i++ ) {
+    //   item = $(this[i]);
+      
+    //   // Find the shortest column.
+    //   shortest = null;
+    //   shortestIndex = 0;
+    //   for(k=0; k<columns; k++) {
+    //     if(shortest == null || heights[k] < shortest) {
+    //       shortest = heights[k];
+    //       shortestIndex = k;
+    //     }
+    //   }
+      
+    //   // Postion the item.
+    //   item.css({
+    //     position: 'absolute',
+    //     top: shortest+'px',
+    //     left: (shortestIndex*columnWidth + offset)+'px'
+    //   });
+      
+    //   // Update column height.
+    //   heights[shortestIndex] = shortest + item.outerHeight() + this.wookmarkOptions.offset;
+    //   bottom = Math.max(bottom, heights[shortestIndex]);
+      
+    //   this.wookmarkColumns[shortestIndex].push(item);
+    // }
     
     return bottom;
   };
