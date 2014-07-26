@@ -318,7 +318,8 @@
       if (!this.container.is(':visible')) return;
 
       // Calculate basic layout parameters.
-      var columnWidth = this.getItemWidth() + this.offset,
+      var itemWith = this.getItemWidth(),
+          columnWidth = itemWith + this.offset,
           containerWidth = this.container.width(),
           innerWidth = containerWidth - 2 * this.outerOffset,
           columns = ~~((innerWidth + this.offset) / columnWidth),
@@ -343,7 +344,9 @@
       // Calculate the offset based on the alignment of columns to the parent container
       offset = this.outerOffset;
       if (this.align == 'center') {
-        offset += ~~(0.5 + (innerWidth - (columns * columnWidth - this.offset)) >> 1);
+        offset = ~~((containerWidth - (itemWith * columns)) / (columns + 1));
+        columnWidth = itemWith + offset;
+        //offset += ~~(0.5 + (innerWidth - (columns * columnWidth - this.offset)) >> 1);
       }
 
       // Get direction for positioning
