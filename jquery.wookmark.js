@@ -39,7 +39,9 @@
     onLayoutChanged: undefined,
     possibleFilters: [],
     resizeDelay: 50,
-    verticalOffset: undefined
+    verticalOffset: undefined,
+    autoHeight : false,
+    autoHeightUniform: false
   };
 
   // Function for executing css writes to dom on the next animation frame if supported
@@ -231,6 +233,51 @@
     };
 
     /**
+     * Resizing containers based on the height of the main container
+     */
+    Wookmark.prototype.refreshAutoHeight = function () {
+      var i, k, $lastColumnItem,
+        columnsLength = this.columns.length, column,
+        height, top, modulo = 0, $item, position,
+        containerHeight = this.container.innerHeight();
+
+      for (i = 0; i < columnsLength; i++) {
+        var itemBulkCSS = [];
+        column = this.columns[i];
+        $lastColumnItem = column[column.length - 1];
+        if (!$lastColumnItem) continue;
+        top = $lastColumnItem.data('wookmark-top') + $lastColumnItem.data('wookmark-height') + this.verticalOffset;
+        height = containerHeight - top;
+        if (this.autoHeightUniform) {
+          // uniformly resizing containers
+          modulo = height % column.length;
+          height = (height - modulo) / column.length;
+          for (k = 0; k < column.length; k++) {
+            $item = column[k];
+            position = $item.data('wookmark-top');
+            var item_height = $item.height();
+            if (k == column.length - 1) {
+              item_height = item_height + height + modulo;
+            } else {
+              item_height = item_height + height;
+            }
+            top = position + (k * height);
+            itemBulkCSS[k] = {
+              obj: $item,
+              css: {
+                top: top,
+                height: item_height
+              }
+            }
+          }
+          bulkUpdateCSS(itemBulkCSS);
+        } else {
+          $lastColumnItem.css('height', $lastColumnItem.height() + height + modulo);
+        }
+      }
+    };
+
+    /**
      * Creates or updates existing placeholders to create columns of even height
      */
     Wookmark.prototype.refreshPlaceholders = function(columnWidth, sideOffset) {
@@ -244,7 +291,6 @@
         $placeholder = $('<div class="wookmark-placeholder"/>').appendTo(this.container);
         this.placeholders.push($placeholder);
       }
-
       innerOffset = this.offset + parseInt(this.placeholders[0].css('borderLeftWidth'), 10) * 2;
 
       for (i = 0; i < this.placeholders.length; i++) {
@@ -327,6 +373,9 @@
           activeItemsLength = activeItems.length,
           $item;
 
+      // Cleaning explicitly defined height of an element
+      activeItems.css('height', '');
+
       // Cache item height
       if (this.itemHeightsDirty || !this.container.data('itemHeightsInitialized')) {
         for (; i < activeItemsLength; i++) {
@@ -363,6 +412,11 @@
       // Update placeholders
       if (this.fillEmptySpace) {
         this.refreshPlaceholders(columnWidth, offset);
+      } else {
+        // Update autoHeight
+        if (this.autoHeight) {
+          this.refreshAutoHeight();
+        }
       }
 
       if (this.onLayoutChanged !== undefined && typeof this.onLayoutChanged === 'function') {
