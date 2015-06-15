@@ -5,6 +5,8 @@
 Wookmark
 ========
 
+[![Join the chat at https://gitter.im/germanysbestkeptsecret/Wookmark-jQuery](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/germanysbestkeptsecret/Wookmark-jQuery?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is a plugin for laying out a dynamic grid of elements.
 
 See the [documentation page](http://www.wookmark.com/jquery-plugin) for examples.
