@@ -73,7 +73,7 @@ The plugin can be intialized in different ways. `options` are optional.
 
 ### Default without jQuery
 
-    var wookmark = new Wookmark('#myElementContainer'[, options ]);
+    var wookmark = new Wookmark('#myElementContainer', [ options ]);
 
 ### jQuery call with default settings:
 
